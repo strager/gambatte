@@ -23,8 +23,8 @@
 #include "mmpriority.h"
 #include "pixelbuffer.h"
 #include "skipsched.h"
-#include <QtGlobal> // for Q_WS_WIN define
-#ifdef Q_WS_WIN
+#include <QtGlobal> // for Q_OS_WIN define
+#ifdef Q_OS_WIN
 #include <Objbase.h> // For CoInitialize
 #endif
 #include <cstdlib>
@@ -384,7 +384,7 @@ static usec_t usecsFromUnderrun(AudioEngine::BufferState const &bstate,
 } // anon ns
 
 void MediaWorker::run() {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	class CoInit : Uncopyable {
 	public:
 		CoInit() { CoInitializeEx(0, COINIT_MULTITHREADED); }

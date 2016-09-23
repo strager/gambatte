@@ -23,13 +23,20 @@ TEMPLATE = app
 CONFIG += warn_on \
     release
 QMAKE_CFLAGS   += -fomit-frame-pointer
-QMAKE_CXXFLAGS += -fomit-frame-pointer -fno-exceptions -fno-rtti
+QMAKE_CXXFLAGS += -fomit-frame-pointer -fno-exceptions -fno-rtti -fpermissive
 TARGET = gambatte_qt
 macx:TARGET = "Gambatte Qt"
 DESTDIR = ../bin
 INCLUDEPATH += ../../libgambatte/include
 DEPENDPATH  += ../../libgambatte/include
+QT += widgets gui-private
 LIBS += -L../../libgambatte -lgambatte -lz
+win32 {
+	LIBS += -lole32
+}
+unix:!macx {
+	QT += x11extras
+}
 exists(../../.git) {
 	MY_GIT_REVNO = $$system(git rev-list HEAD --count)
 	!isEmpty(MY_GIT_REVNO):DEFINES += GAMBATTE_QT_VERSION_STR='\\"r$$MY_GIT_REVNO\\"'
