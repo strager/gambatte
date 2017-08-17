@@ -22,85 +22,35 @@ About
 --------------------------------------------------------------------------------
 Gambatte is a portable, open-source Game Boy Color emulator.
 
-The core emulation code is contained in a separate library backend
-(libgambatte) written in platform-independent C++. There is currently a Qt GUI
-frontend (gambatte_qt), and a simplistic command-line interface SDL frontend
-(gambatte_sdl).
-
-The Qt frontend has been ported to Windows, Mac OS X, and Linux/BSD/Unix-like
-OSes with audio/video engines utilizing native APIs on these platforms.
-
-The SDL frontend should be usable on all platforms with a working SDL port. It
-should also be quite trivial to create new (simple) frontends (note that the
-library API should in no way be considered stable).
-
-Usage
---------------------------------------------------------------------------------
-You will have to supply Gambatte with a ROM image file of the GB/GBC
-program/game you would like to run/play, either as a command line argument, or
-through the File->Open... menu in gambatte_qt.
-
-gambatte_sdl keyboard commands:
-TAB    - fast-forward
-Ctrl-f - toggle full screen
-Ctrl-r - reset
-F5     - save state
-F6     - previous state slot
-F7     - next state slot
-F8     - load state
-0 to 9 - select state slot 0 to 9
-
-Default key mapping:
-Up:     Up
-Down:   Down
-Left:   Left
-Right:  Right
-A:      D
-B:      C
-Start:  Return
-Select: Shift
+The core emulation code is contained in a library backend (libgambatte) written
+in platform-independent C++. libgambatte is intended for programmers. This
+project does not include a GUI frontend.
 
 Compiling
 --------------------------------------------------------------------------------
-Building Gambatte from source code can be done by executing the
-build_<qt/sdl>.sh scripts for the qt/sdl frontends respectively, or by issueing
-the correct build command (either 'scons' or 'qmake && make') in the top-level
-subdirectories (libgambatte will have to be built first). The clean.sh script
-can be executed to remove all generated files after a compile (including
-binaries).
+libgambatte is a C++ project built using CMake.
+
+Issue the following commands in a terminal to compile libgambatte on macOS:
+
+	$ mkdir build
+	$ cd build
+	$ cmake -DBUILD_TESTING=FALSE ..
+	$ make
+
+Issue the following commands in a terminal to compile libgambatte on macOS and
+run the test suite:
+
+	$ mkdir build
+	$ cd build
+	$ cmake -DBUILD_TESTING=TRUE ..
+	$ make
+	$ make test
 
 Requirements for building libgambatte:
 - A decent C++ compiler (like g++ in the GNU Compiler Collection).
-- SCons.
-- optionally zlib
-
-Requirements for building gambatte_sdl:
-- A decent C++ compiler (like g++ in the GNU Compiler Collection).
-- SDL headers and library.
-- SCons.
-(- libgambatte.)
-
-Requirements for building gambatte_qt:
-- A decent C++ compiler (like g++ in the GNU Compiler Collection).
-- Qt4 (Core, GUI, OpenGL) headers and library.
-- Qmake and make (GNU Make should work).
-- Platform-specific requirements:
-  * MS Windows:
-    - Win32 API headers and libraries.
-    - DirectSound and DirectDraw7 headers and libraries.
-    - Direct3D9 headers
-  * Linux/BSD/UNIX-like OSes:
-    - POSIX/UNIX headers (unistd.h, fcntl.h, sys/ioctl.h, sys/time.h, sys/shm.h).
-    - Open Sound System header (sys/soundcard.h).
-    - X11 Xlib, XVideo, XRandR and XShm headers and libraries.
-    - Alsa headers and library (Linux only).
-  * Max OS X:
-    - Recent Mac OS X SDK (Panther Xcode/SDK should work)
-(- libgambatte.)
-
-Installing after a compile simply amounts to copying the generated binary
-(either gambatte_qt/bin/gambatte_qt<.exe> or gambatte_sdl/gambatte_sdl<.exe>)
-to wherever you'd like to keep it.
+- CMake >= 3.5.
+- Optionally zlib.
+- Optionally libpng for tests.
 
 Thanks
 --------------------------------------------------------------------------------
