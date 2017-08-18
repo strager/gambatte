@@ -19,6 +19,8 @@
 #ifndef GAMBATTE_STOPINFO_H
 #define GAMBATTE_STOPINFO_H
 
+#include <cstddef>
+
 namespace gambatte {
 
 struct StopInfo {
@@ -46,7 +48,7 @@ struct StopInfo {
 	  *
 	  * Set iff stopReason == VIDEO_FRAME_PRODUCED.
 	  */
-	std::ptrdiff_t videoFrameSampleOffset;
+	std::size_t videoFrameSampleOffset;
 };
 
 }
