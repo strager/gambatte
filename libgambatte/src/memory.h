@@ -25,6 +25,7 @@
 #include "sound.h"
 #include "tima.h"
 #include "video.h"
+#include <iosfwd>
 
 namespace gambatte {
 
@@ -40,9 +41,9 @@ public:
 	void setStatePtrs(SaveState &state);
 	unsigned long saveState(SaveState &state, unsigned long cc);
 	void loadState(SaveState const &state);
-	void loadSavedata() { cart_.loadSavedata(); }
-	void saveSavedata() { cart_.saveSavedata(); }
 	std::string const saveBasePath() const { return cart_.saveBasePath(); }
+	bool loadSavedata(std::istream * saveFile, std::istream * rtcFile) { return cart_.loadSavedata(saveFile, rtcFile); }
+	bool saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const { return cart_.saveSavedata(saveFile, rtcFile); }
 
 	void setOsdElement(transfer_ptr<OsdElement> osdElement) {
 		lcd_.setOsdElement(osdElement);
@@ -91,7 +92,6 @@ public:
 	unsigned long event(unsigned long cycleCounter);
 	unsigned long resetCounters(unsigned long cycleCounter);
 	LoadRes loadROM(std::string const &romfile, bool forceDmg, bool multicartCompat);
-	void setSaveDir(std::string const &dir) { cart_.setSaveDir(dir); }
 	void setInputGetter(InputGetter *getInput) { getInput_ = getInput; }
 	void setEndtime(unsigned long cc, unsigned long inc);
 	void setSoundBuffer(uint_least32_t *buf) { psg_.setBuffer(buf); }

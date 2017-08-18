@@ -24,6 +24,7 @@
 #include "rtc.h"
 #include "savestate.h"
 #include "scoped_ptr.h"
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -61,10 +62,9 @@ public:
 	bool isCgb() const { return gambatte::isCgb(memptrs_); }
 	void rtcWrite(unsigned data) { rtc_.write(data); }
 	unsigned char rtcRead() const { return *rtc_.activeData(); }
-	void loadSavedata();
-	void saveSavedata();
+	bool loadSavedata(std::istream * saveFile, std::istream * rtcFile);
+	bool saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const;
 	std::string const saveBasePath() const;
-	void setSaveDir(std::string const &dir);
 	LoadRes loadROM(std::string const &romfile, bool forceDmg, bool multicartCompat);
 	char const * romTitle() const { return reinterpret_cast<char const *>(memptrs_.romdata() + 0x134); }
 	class PakInfo const pakInfo(bool multicartCompat) const;
@@ -85,6 +85,8 @@ private:
 	std::vector<AddrData> ggUndoList_;
 
 	void applyGameGenie(std::string const &code);
+	bool hasBattery() const;
+	bool hasRtc() const;
 };
 
 }

@@ -19,4 +19,5 @@ target_compile_options(
 target_include_directories(gambatte-testrunner PRIVATE ../common)
 target_link_libraries(gambatte-testrunner PRIVATE PNG::PNG gambatte)
 
+add_subdirectory(api)
 add_subdirectory(hwtests)

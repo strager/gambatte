@@ -30,8 +30,8 @@ public:
 	void setStatePtrs(SaveState &state);
 	void saveState(SaveState &state);
 	void loadState(SaveState const &state);
-	void loadSavedata() { mem_.loadSavedata(); }
-	void saveSavedata() { mem_.saveSavedata(); }
+	bool loadSavedata(std::istream * saveFile, std::istream * rtcFile) { return mem_.loadSavedata(saveFile, rtcFile); }
+	bool saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const { return mem_.saveSavedata(saveFile, rtcFile); }
 
 	void setVideoBuffer(uint_least32_t *videoBuf, std::ptrdiff_t pitch) {
 		mem_.setVideoBuffer(videoBuf, pitch);
@@ -39,10 +39,6 @@ public:
 
 	void setInputGetter(InputGetter *getInput) {
 		mem_.setInputGetter(getInput);
-	}
-
-	void setSaveDir(std::string const &sdir) {
-		mem_.setSaveDir(sdir);
 	}
 
 	std::string const saveBasePath() const {

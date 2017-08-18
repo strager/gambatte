@@ -13,6 +13,8 @@ public:
 	std::string const mbc() const;
 	unsigned rambanks() const;
 	unsigned rombanks() const;
+	bool hasBattery() const;
+	bool hasRtc() const;
 
 private:
 	unsigned short flags_;

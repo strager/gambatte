@@ -23,6 +23,7 @@
 #include "inputgetter.h"
 #include "loadres.h"
 #include <cstddef>
+#include <iosfwd>
 #include <string>
 
 namespace gambatte {
@@ -110,8 +111,11 @@ public:
 	/** Returns true if a ROM image is loaded. */
 	bool isLoaded() const;
 
-	/** Writes persistent cartridge data to disk. Done implicitly on ROM close. */
-	void saveSavedata();
+	/** Reads persistent cartridge data from disk. */
+	bool loadSavedata(std::istream * saveFile, std::istream * rtcFile);
+
+	/** Writes persistent cartridge data to disk. */
+	bool saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const;
 
 	/**
 	  * Saves emulator state to the state slot selected with selectState().

@@ -21,7 +21,8 @@
 #include "../savestate.h"
 #include "pakinfo_internal.h"
 #include <cstring>
-#include <fstream>
+#include <istream>
+#include <ostream>
 
 namespace gambatte {
 
@@ -458,14 +459,6 @@ private:
 	void setRombank() const { memptrs_.setRombank(adjustedRombank(rombank_) & (rombanks(memptrs_) - 1)); }
 };
 
-static bool hasRtc(unsigned headerByte0x147) {
-	switch (headerByte0x147) {
-	case 0x0F:
-	case 0x10: return true;
-	default: return false;
-	}
-}
-
 }
 
 void Cartridge::setStatePtrs(SaveState &state) {
@@ -506,12 +499,6 @@ std::string const Cartridge::saveBasePath() const {
 	return saveDir_.empty()
 	     ? defaultSaveBasePath_
 	     : saveDir_ + stripDir(defaultSaveBasePath_);
-}
-
-void Cartridge::setSaveDir(std::string const &dir) {
-	saveDir_ = dir;
-	if (!saveDir_.empty() && saveDir_[saveDir_.length() - 1] != '/')
-		saveDir_ += '/';
 }
 
 static void enforce8bit(unsigned char *data, std::size_t size) {
@@ -645,7 +632,7 @@ LoadRes Cartridge::loadROM(std::string const &romfile,
 		break;
 	case type_mbc2: mbc_.reset(new Mbc2(memptrs_)); break;
 	case type_mbc3:
-		mbc_.reset(new Mbc3(memptrs_, hasRtc(memptrs_.romdata()[0x147]) ? &rtc_ : 0));
+		mbc_.reset(new Mbc3(memptrs_, hasRtc() ? &rtc_ : 0));
 		break;
 	case type_mbc5: mbc_.reset(new Mbc5(memptrs_)); break;
 	case type_huc1: mbc_.reset(new HuC1(memptrs_)); break;
@@ -654,63 +641,47 @@ LoadRes Cartridge::loadROM(std::string const &romfile,
 	return LOADRES_OK;
 }
 
-static bool hasBattery(unsigned char headerByte0x147) {
-	switch (headerByte0x147) {
-	case 0x03:
-	case 0x06:
-	case 0x09:
-	case 0x0F:
-	case 0x10:
-	case 0x13:
-	case 0x1B:
-	case 0x1E:
-	case 0xFF: return true;
-	default: return false;
+bool Cartridge::loadSavedata(std::istream * saveFile, std::istream * rtcFile) {
+	if (hasBattery() && saveFile) {
+		saveFile->read(reinterpret_cast<char*>(memptrs_.rambankdata()),
+		               memptrs_.rambankdataend() - memptrs_.rambankdata());
+		enforce8bit(memptrs_.rambankdata(), memptrs_.rambankdataend() - memptrs_.rambankdata());
+		if (saveFile->fail())
+			return false;
 	}
+
+	if (hasRtc() && rtcFile) {
+		unsigned long basetime =    rtcFile->get() & 0xFF;
+		basetime = basetime << 8 | (rtcFile->get() & 0xFF);
+		basetime = basetime << 8 | (rtcFile->get() & 0xFF);
+		basetime = basetime << 8 | (rtcFile->get() & 0xFF);
+		rtc_.setBaseTime(basetime);
+		if (rtcFile->fail())
+			return false;
+	}
+
+	return true;
 }
 
-void Cartridge::loadSavedata() {
-	std::string const &sbp = saveBasePath();
-
-	if (hasBattery(memptrs_.romdata()[0x147])) {
-		std::ifstream file((sbp + ".sav").c_str(), std::ios::binary | std::ios::in);
-
-		if (file.is_open()) {
-			file.read(reinterpret_cast<char*>(memptrs_.rambankdata()),
-			          memptrs_.rambankdataend() - memptrs_.rambankdata());
-			enforce8bit(memptrs_.rambankdata(), memptrs_.rambankdataend() - memptrs_.rambankdata());
-		}
+bool Cartridge::saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const {
+	if (hasBattery() && saveFile) {
+		saveFile->write(reinterpret_cast<char const *>(memptrs_.rambankdata()),
+		                memptrs_.rambankdataend() - memptrs_.rambankdata());
+		if (saveFile->fail())
+			return false;
 	}
 
-	if (hasRtc(memptrs_.romdata()[0x147])) {
-		std::ifstream file((sbp + ".rtc").c_str(), std::ios::binary | std::ios::in);
-		if (file) {
-			unsigned long basetime =    file.get() & 0xFF;
-			basetime = basetime << 8 | (file.get() & 0xFF);
-			basetime = basetime << 8 | (file.get() & 0xFF);
-			basetime = basetime << 8 | (file.get() & 0xFF);
-			rtc_.setBaseTime(basetime);
-		}
-	}
-}
-
-void Cartridge::saveSavedata() {
-	std::string const &sbp = saveBasePath();
-
-	if (hasBattery(memptrs_.romdata()[0x147])) {
-		std::ofstream file((sbp + ".sav").c_str(), std::ios::binary | std::ios::out);
-		file.write(reinterpret_cast<char const *>(memptrs_.rambankdata()),
-		           memptrs_.rambankdataend() - memptrs_.rambankdata());
-	}
-
-	if (hasRtc(memptrs_.romdata()[0x147])) {
-		std::ofstream file((sbp + ".rtc").c_str(), std::ios::binary | std::ios::out);
+	if (hasRtc() && rtcFile) {
 		unsigned long const basetime = rtc_.baseTime();
-		file.put(basetime >> 24 & 0xFF);
-		file.put(basetime >> 16 & 0xFF);
-		file.put(basetime >>  8 & 0xFF);
-		file.put(basetime       & 0xFF);
+		rtcFile->put(basetime >> 24 & 0xFF);
+		rtcFile->put(basetime >> 16 & 0xFF);
+		rtcFile->put(basetime >>  8 & 0xFF);
+		rtcFile->put(basetime       & 0xFF);
+		if (rtcFile->fail())
+			return false;
 	}
+
+	return true;
 }
 
 static int asHex(char c) {
@@ -768,6 +739,14 @@ PakInfo const Cartridge::pakInfo(bool const multipakCompat) const {
 	}
 
 	return PakInfo();
+}
+
+bool Cartridge::hasBattery() const {
+	return pakInfo(false).hasBattery();
+}
+
+bool Cartridge::hasRtc() const {
+	return pakInfo(false).hasRtc();
 }
 
 }

@@ -89,4 +89,27 @@ std::string const PakInfo::mbc() const {
 unsigned PakInfo::rambanks() const { return numRambanksFromH14x(h144x_[3], h144x_[5]); }
 unsigned PakInfo::rombanks() const { return rombanks_; }
 
+bool PakInfo::hasBattery() const {
+	switch (h144x_[3]) {
+	case 0x03:
+	case 0x06:
+	case 0x09:
+	case 0x0F:
+	case 0x10:
+	case 0x13:
+	case 0x1B:
+	case 0x1E:
+	case 0xFF: return true;
+	default: return false;
+	}
+}
+
+bool PakInfo::hasRtc() const {
+	switch (h144x_[3]) {
+	case 0x0F:
+	case 0x10: return true;
+	default: return false;
+	}
+}
+
 }
