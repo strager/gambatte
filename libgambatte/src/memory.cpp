@@ -33,8 +33,8 @@ Memory::Memory(Interrupter const &interrupter)
 , dmaDestination_(0)
 , oamDmaPos_(0xFE)
 , serialCnt_(0)
-, input_(0)
 , blanklcd_(false)
+, input_(0)
 {
 	intreq_.setEventTime<intevent_blit>(144 * 456ul);
 	intreq_.setEventTime<intevent_end>(0);
