@@ -158,6 +158,12 @@ public:
 	  */
 	void setGameShark(std::string const &codes);
 
+	bool addROMBreakpoint(std::uint_least32_t fileOffset);
+
+	bool removeROMBreakpoint(std::uint_least32_t fileOffset);
+
+	void clearROMBreakpoints();
+
 private:
 	struct Priv;
 	Priv *const p_;

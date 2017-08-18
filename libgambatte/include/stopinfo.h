@@ -19,6 +19,7 @@
 #ifndef GAMBATTE_STOPINFO_H
 #define GAMBATTE_STOPINFO_H
 
+#include "gbint.h"
 #include <cstddef>
 
 namespace gambatte {
@@ -32,23 +33,33 @@ struct StopInfo {
 		  */
 		REQUESTED_SAMPLES_PRODUCED = 2,
 		VIDEO_FRAME_PRODUCED = 3,
+		ROM_BREAKPOINT_HIT = 4,
 	};
 
 	StopReason stopReason;
 
 	/**
 	  * Set iff stopReason == REQUESTED_SAMPLES_PRODUCED || stopReason ==
-	  * VIDEO_FRAME_PRODUCED.
+	  * VIDEO_FRAME_PRODUCED || stopReason == ROM_BREAKPOINT_HIT.
 	  */
 	std::size_t samplesProduced;
 
-	/**
-	  * Sample offset in the sound buffer at which the video frame was
-	  * completed.
-	  *
-	  * Set iff stopReason == VIDEO_FRAME_PRODUCED.
-	  */
-	std::size_t videoFrameSampleOffset;
+	union {
+		/**
+		  * Sample offset in the sound buffer at which the video frame was
+		  * completed.
+		  *
+		  * Set iff stopReason == VIDEO_FRAME_PRODUCED.
+		  */
+		std::size_t videoFrameSampleOffset;
+
+		/**
+		  * Offset in the ROM file of the current program counter.
+		  *
+		  * Set iff stopReason == ROM_BREAKPOINT_HIT.
+		  */
+		std::uint_least32_t romBreakpointFileOffset;
+	};
 };
 
 }

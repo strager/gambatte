@@ -19,6 +19,7 @@
 #ifndef CPU_H
 #define CPU_H
 
+#include "breakpoints.h"
 #include "memory.h"
 #include "stopinfo.h"
 
@@ -47,7 +48,9 @@ public:
 	}
 
 	LoadRes load(std::string const &romfile, bool forceDmg, bool multicartCompat) {
-		return mem_.loadROM(romfile, forceDmg, multicartCompat);
+		LoadRes res = mem_.loadROM(romfile, forceDmg, multicartCompat);
+		breakpoints_.reloadROMBreakpoints(mem_.cart());
+		return res;
 	}
 
 	bool loaded() const { return mem_.loaded(); }
@@ -64,6 +67,10 @@ public:
 	void setGameGenie(std::string const &codes) { mem_.setGameGenie(codes); }
 	void setGameShark(std::string const &codes) { mem_.setGameShark(codes); }
 
+	bool addROMBreakpoint(std::uint_least32_t fileOffset);
+	bool removeROMBreakpoint(std::uint_least32_t fileOffset);
+	void clearROMBreakpoints();
+
 private:
 	Memory mem_;
 	unsigned long cycleCounter_;
@@ -72,8 +79,7 @@ private:
 	unsigned hf1, hf2, zf, cf;
 	unsigned char a_, b, c, d, e, /*f,*/ h, l;
 	bool skip_;
-
-	void process(unsigned long cycles);
+	Breakpoints breakpoints_;
 };
 
 }

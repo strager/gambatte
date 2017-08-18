@@ -37,6 +37,7 @@ public:
 	              RIGHT = 0x10, LEFT = 0x20, UP     = 0x40, DOWN  = 0x80 };
 
 	explicit Memory(Interrupter const &interrupter);
+	Cartridge const &cart() const { return cart_; }
 	bool loaded() const { return cart_.loaded(); }
 	char const * romTitle() const { return cart_.romTitle(); }
 	PakInfo const pakInfo(bool multicartCompat) const { return cart_.pakInfo(multicartCompat); }

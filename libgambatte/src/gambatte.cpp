@@ -164,4 +164,16 @@ void GB::setGameShark(std::string const &codes) {
 	p_->cpu.setGameShark(codes);
 }
 
+bool GB::addROMBreakpoint(std::uint_least32_t fileOffset) {
+	return p_->cpu.addROMBreakpoint(fileOffset);
+}
+
+bool GB::removeROMBreakpoint(std::uint_least32_t fileOffset) {
+	return p_->cpu.removeROMBreakpoint(fileOffset);
+}
+
+void GB::clearROMBreakpoints() {
+	p_->cpu.clearROMBreakpoints();
+}
+
 }

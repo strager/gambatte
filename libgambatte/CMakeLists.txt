@@ -7,6 +7,7 @@ find_package(ZLIB MODULE)
 set(
 	SOURCES
 	src/bitmap_font.cpp
+	src/breakpoints.cpp
 	src/cpu.cpp
 	src/gambatte.cpp
 	src/initstate.cpp

@@ -42,31 +42,6 @@ CPU::CPU()
 {
 }
 
-StopInfo CPU::runFor(unsigned long const cycles) {
-	if (!this->loaded()) {
-		StopInfo stopInfo;
-		stopInfo.stopReason = StopInfo::ERROR_NOT_LOADED;
-		return stopInfo;
-	}
-
-	process(cycles);
-
-	long const csb = mem_.cyclesSinceBlit(cycleCounter_);
-
-	if (cycleCounter_ & 0x80000000)
-		cycleCounter_ = mem_.resetCounters(cycleCounter_);
-
-	StopInfo stopInfo;
-	stopInfo.samplesProduced = this->fillSoundBuffer();
-	if (csb >= 0) {
-		stopInfo.stopReason = StopInfo::VIDEO_FRAME_PRODUCED;
-		stopInfo.videoFrameSampleOffset = (cycles >> 1) - (csb >> 1);
-	} else {
-		stopInfo.stopReason = StopInfo::REQUESTED_SAMPLES_PRODUCED;
-	}
-	return stopInfo;
-}
-
 enum { hf2_hcf = 0x200, hf2_subf = 0x400, hf2_incf = 0x800 };
 
 static unsigned updateHf2FromHf1(unsigned const hf1, unsigned hf2) {
@@ -133,6 +108,18 @@ void CPU::loadState(SaveState const &state) {
 	h = state.cpu.h & 0xFF;
 	l = state.cpu.l & 0xFF;
 	skip_ = state.cpu.skip;
+}
+
+bool CPU::addROMBreakpoint(std::uint_least32_t fileOffset) {
+	return breakpoints_.addROMBreakpoint(mem_.cart(), fileOffset);
+}
+
+bool CPU::removeROMBreakpoint(std::uint_least32_t fileOffset) {
+	return breakpoints_.removeROMBreakpoint(fileOffset);
+}
+
+void CPU::clearROMBreakpoints() {
+	breakpoints_.clearROMBreakpoints();
 }
 
 // The main reasons for the use of macros is to more conveniently be able to tweak
@@ -500,14 +487,23 @@ void CPU::loadState(SaveState const &state) {
 	PC_MOD(high << 8 | low); \
 } while (0)
 
-void CPU::process(unsigned long const cycles) {
+StopInfo CPU::runFor(unsigned long const cycles) {
+	if (!this->loaded()) {
+		StopInfo stopInfo;
+		stopInfo.stopReason = StopInfo::ERROR_NOT_LOADED;
+		return stopInfo;
+	}
+
 	mem_.setEndtime(cycleCounter_, cycles);
 	mem_.updateInput();
+
+	StopInfo stopInfo;
 
 	unsigned char a = a_;
 	unsigned long cycleCounter = cycleCounter_;
 
-	while (mem_.isActive()) {
+	bool hitBreakpoint = false;
+	while (mem_.isActive() && !hitBreakpoint) {
 		unsigned short pc = pc_;
 
 		if (mem_.halted()) {
@@ -516,6 +512,18 @@ void CPU::process(unsigned long const cycles) {
 				cycleCounter += cycles + (-cycles & 3);
 			}
 		} else while (cycleCounter < mem_.nextEventTime()) {
+			if (breakpoints_.hasROMBreakpoints()) {
+				unsigned char const * pcROMByte = mem_.cart().rmem(pc >> 12);
+				if (pcROMByte) {
+					pcROMByte = &pcROMByte[pc];
+					if (breakpoints_.testROMBreakpoint(pcROMByte, &stopInfo.romBreakpointFileOffset)) {
+						stopInfo.stopReason = StopInfo::ROM_BREAKPOINT_HIT;
+						hitBreakpoint = true;
+						break;
+					}
+				}
+			}
+
 			unsigned char opcode;
 
 			PC_READ(opcode);
@@ -1996,11 +2004,29 @@ void CPU::process(unsigned long const cycles) {
 		}
 
 		pc_ = pc;
-		cycleCounter = mem_.event(cycleCounter);
+		if (!hitBreakpoint) {
+			cycleCounter = mem_.event(cycleCounter);
+		}
 	}
 
 	a_ = a;
 	cycleCounter_ = cycleCounter;
+
+	long const csb = mem_.cyclesSinceBlit(cycleCounter_);
+
+	if (cycleCounter_ & 0x80000000)
+		cycleCounter_ = mem_.resetCounters(cycleCounter_);
+
+	stopInfo.samplesProduced = this->fillSoundBuffer();
+	if (hitBreakpoint) {
+		// stopInfo.stopReason was already set.
+	} else if (csb >= 0) {
+		stopInfo.stopReason = StopInfo::VIDEO_FRAME_PRODUCED;
+		stopInfo.videoFrameSampleOffset = (cycles >> 1) - (csb >> 1);
+	} else {
+		stopInfo.stopReason = StopInfo::REQUESTED_SAMPLES_PRODUCED;
+	}
+	return stopInfo;
 }
 
 }
