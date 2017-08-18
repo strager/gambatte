@@ -42,7 +42,13 @@ CPU::CPU()
 {
 }
 
-long CPU::runFor(unsigned long const cycles) {
+StopInfo CPU::runFor(unsigned long const cycles) {
+	if (!this->loaded()) {
+		StopInfo stopInfo;
+		stopInfo.stopReason = StopInfo::ERROR_NOT_LOADED;
+		return stopInfo;
+	}
+
 	process(cycles);
 
 	long const csb = mem_.cyclesSinceBlit(cycleCounter_);
@@ -50,7 +56,15 @@ long CPU::runFor(unsigned long const cycles) {
 	if (cycleCounter_ & 0x80000000)
 		cycleCounter_ = mem_.resetCounters(cycleCounter_);
 
-	return csb;
+	StopInfo stopInfo;
+	stopInfo.samplesProduced = this->fillSoundBuffer();
+	if (csb >= 0) {
+		stopInfo.stopReason = StopInfo::VIDEO_FRAME_PRODUCED;
+		stopInfo.videoFrameSampleOffset = (cycles >> 1) - (csb >> 1);
+	} else {
+		stopInfo.stopReason = StopInfo::REQUESTED_SAMPLES_PRODUCED;
+	}
+	return stopInfo;
 }
 
 enum { hf2_hcf = 0x200, hf2_subf = 0x400, hf2_incf = 0x800 };

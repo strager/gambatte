@@ -20,13 +20,14 @@
 #define CPU_H
 
 #include "memory.h"
+#include "stopinfo.h"
 
 namespace gambatte {
 
 class CPU {
 public:
 	CPU();
-	long runFor(unsigned long cycles);
+	StopInfo runFor(unsigned long cycles);
 	void setStatePtrs(SaveState &state);
 	void saveState(SaveState &state);
 	void loadState(SaveState const &state);

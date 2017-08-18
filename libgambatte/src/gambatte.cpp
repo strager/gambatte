@@ -53,16 +53,7 @@ StopInfo GB::runFor(gambatte::uint_least32_t *const soundBuf, std::size_t sample
 
 	p_->cpu.setSoundBuffer(soundBuf);
 
-	long const cyclesSinceBlit = p_->cpu.runFor(samples * 2);
-	StopInfo stopInfo;
-	stopInfo.samplesProduced = p_->cpu.fillSoundBuffer();
-	if (cyclesSinceBlit >= 0) {
-		stopInfo.stopReason = StopInfo::VIDEO_FRAME_PRODUCED;
-		stopInfo.videoFrameSampleOffset = samples - (cyclesSinceBlit >> 1);
-	} else {
-		stopInfo.stopReason = StopInfo::REQUESTED_SAMPLES_PRODUCED;
-	}
-	return stopInfo;
+	return p_->cpu.runFor(samples * 2);
 }
 
 void GB::reset() {
