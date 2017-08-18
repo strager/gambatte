@@ -375,4 +375,5 @@ int main(int const argc, char *argv[]) {
 
 	std::printf("\n\nRan %d tests.\n", numTestsRun);
 	std::printf("%d failures.\n", numTestsRun - numTestsSucceeded);
+	return numTestsRun == numTestsSucceeded ? EXIT_SUCCESS : EXIT_FAILURE;
 }
