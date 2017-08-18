@@ -17,7 +17,6 @@
 //
 
 #include "memory.h"
-#include "inputgetter.h"
 #include "savestate.h"
 #include "sound.h"
 #include "video.h"
@@ -26,8 +25,7 @@
 namespace gambatte {
 
 Memory::Memory(Interrupter const &interrupter)
-: getInput_(0)
-, divLastUpdate_(0)
+: divLastUpdate_(0)
 , lastOamDmaUpdate_(disabled_time)
 , lcd_(ioamhram_, 0, VideoInterruptRequester(intreq_))
 , interrupter_(interrupter)
@@ -35,6 +33,7 @@ Memory::Memory(Interrupter const &interrupter)
 , dmaDestination_(0)
 , oamDmaPos_(0xFE)
 , serialCnt_(0)
+, input_(0)
 , blanklcd_(false)
 {
 	intreq_.setEventTime<intevent_blit>(144 * 456ul);
@@ -373,10 +372,9 @@ unsigned long Memory::resetCounters(unsigned long cc) {
 void Memory::updateInput() {
 	unsigned state = 0xF;
 
-	if ((ioamhram_[0x100] & 0x30) != 0x30 && getInput_) {
-		unsigned input = (*getInput_)();
-		unsigned dpad_state = ~input >> 4;
-		unsigned button_state = ~input;
+	if ((ioamhram_[0x100] & 0x30) != 0x30) {
+		unsigned dpad_state = ~input_ >> 4;
+		unsigned button_state = ~input_;
 		if (!(ioamhram_[0x100] & 0x10))
 			state &= dpad_state;
 		if (!(ioamhram_[0x100] & 0x20))

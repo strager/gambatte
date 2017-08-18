@@ -29,11 +29,13 @@
 
 namespace gambatte {
 
-class InputGetter;
 class FilterInfo;
 
 class Memory {
 public:
+	enum Button { A     = 0x01, B    = 0x02, SELECT = 0x04, START = 0x08,
+	              RIGHT = 0x10, LEFT = 0x20, UP     = 0x40, DOWN  = 0x80 };
+
 	explicit Memory(Interrupter const &interrupter);
 	bool loaded() const { return cart_.loaded(); }
 	char const * romTitle() const { return cart_.romTitle(); }
@@ -91,7 +93,7 @@ public:
 	unsigned long event(unsigned long cycleCounter);
 	unsigned long resetCounters(unsigned long cycleCounter);
 	LoadRes loadROM(std::string const &romfile, bool forceDmg, bool multicartCompat);
-	void setInputGetter(InputGetter *getInput) { getInput_ = getInput; }
+	void setInput(unsigned char input) { input_ = input; }
 	void setEndtime(unsigned long cc, unsigned long inc);
 	void setSoundBuffer(uint_least32_t *buf) { psg_.setBuffer(buf); }
 	std::size_t fillSoundBuffer(unsigned long cc);
@@ -111,7 +113,6 @@ public:
 private:
 	Cartridge cart_;
 	unsigned char ioamhram_[0x200];
-	InputGetter *getInput_;
 	unsigned long divLastUpdate_;
 	unsigned long lastOamDmaUpdate_;
 	InterruptRequester intreq_;
@@ -124,6 +125,7 @@ private:
 	unsigned char oamDmaPos_;
 	unsigned char serialCnt_;
 	bool blanklcd_;
+	unsigned char input_;
 
 	void decEventCycles(IntEventId eventId, unsigned long dec);
 	void oamDmaInitSetup();

@@ -73,8 +73,8 @@ void GB::reset() {
 	}
 }
 
-void GB::setInputGetter(InputGetter *getInput) {
-	p_->cpu.setInputGetter(getInput);
+void GB::setInput(unsigned char input) {
+	p_->cpu.setInput(input);
 }
 
 LoadRes GB::load(std::string const &romfile, unsigned const flags) {

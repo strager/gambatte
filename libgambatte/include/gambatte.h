@@ -20,7 +20,6 @@
 #define GAMBATTE_H
 
 #include "gbint.h"
-#include "inputgetter.h"
 #include "loadres.h"
 #include <cstddef>
 #include <iosfwd>
@@ -42,6 +41,9 @@ public:
 		MULTICART_COMPAT = 4  /**< Use heuristics to detect and support some multicart
 		                           MBCs disguised as MBC1. */
 	};
+
+	enum Button { A     = 0x01, B    = 0x02, SELECT = 0x04, START = 0x08,
+	              RIGHT = 0x10, LEFT = 0x20, UP     = 0x40, DOWN  = 0x80 };
 
 	 /*
 	  * Load ROM image.
@@ -96,8 +98,8 @@ public:
 	  */
 	void setDmgPaletteColor(int palNum, int colorNum, unsigned long rgb32);
 
-	/** Sets the callback used for getting input state. */
-	void setInputGetter(InputGetter *getInput);
+	/** Sets what buttons are pressed. */
+	void setInput(unsigned char input);
 
 	/**
 	  * Sets the directory used for storing save data. The default is the same directory as

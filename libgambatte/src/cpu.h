@@ -37,8 +37,8 @@ public:
 		mem_.setVideoBuffer(videoBuf, pitch);
 	}
 
-	void setInputGetter(InputGetter *getInput) {
-		mem_.setInputGetter(getInput);
+	void setInput(unsigned char input) {
+		mem_.setInput(input);
 	}
 
 	void setOsdElement(transfer_ptr<OsdElement> osdElement) {
