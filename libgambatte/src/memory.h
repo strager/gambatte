@@ -41,7 +41,6 @@ public:
 	void setStatePtrs(SaveState &state);
 	unsigned long saveState(SaveState &state, unsigned long cc);
 	void loadState(SaveState const &state);
-	std::string const saveBasePath() const { return cart_.saveBasePath(); }
 	bool loadSavedata(std::istream * saveFile, std::istream * rtcFile) { return cart_.loadSavedata(saveFile, rtcFile); }
 	bool saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const { return cart_.saveSavedata(saveFile, rtcFile); }
 

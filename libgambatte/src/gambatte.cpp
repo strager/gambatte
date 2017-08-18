@@ -25,24 +25,13 @@
 #include <cstring>
 #include <sstream>
 
-static std::string const itos(int i) {
-	std::stringstream ss;
-	ss << i;
-	return ss.str();
-}
-
-static std::string const statePath(std::string const &basePath, int stateNo) {
-	return basePath + "_" + itos(stateNo) + ".gqs";
-}
-
 namespace gambatte {
 
 struct GB::Priv {
 	CPU cpu;
-	int stateNo;
 	unsigned loadflags;
 
-	Priv() : stateNo(1), loadflags(0) {}
+	Priv() : loadflags(0) {}
 };
 
 GB::GB() : p_(new Priv) {}
@@ -99,7 +88,6 @@ LoadRes GB::load(std::string const &romfile, unsigned const flags) {
 		setInitState(state, p_->cpu.isCgb(), flags & GBA_CGB);
 		p_->cpu.loadState(state);
 
-		p_->stateNo = 1;
 		p_->cpu.setOsdElement(transfer_ptr<OsdElement>());
 	}
 
@@ -130,12 +118,12 @@ void GB::setDmgPaletteColor(int palNum, int colorNum, unsigned long rgb32) {
 	p_->cpu.setDmgPaletteColor(palNum, colorNum, rgb32);
 }
 
-bool GB::loadState(std::string const &filepath) {
+bool GB::loadState(std::istream &file) {
 	if (p_->cpu.loaded()) {
 		SaveState state;
 		p_->cpu.setStatePtrs(state);
 
-		if (StateSaver::loadState(state, filepath)) {
+		if (StateSaver::loadState(state, file)) {
 			p_->cpu.loadState(state);
 			return true;
 		}
@@ -144,47 +132,17 @@ bool GB::loadState(std::string const &filepath) {
 	return false;
 }
 
-bool GB::saveState(gambatte::uint_least32_t const *videoBuf, std::ptrdiff_t pitch) {
-	if (saveState(videoBuf, pitch, statePath(p_->cpu.saveBasePath(), p_->stateNo))) {
-		p_->cpu.setOsdElement(newStateSavedOsdElement(p_->stateNo));
-		return true;
-	}
-
-	return false;
-}
-
-bool GB::loadState() {
-	if (loadState(statePath(p_->cpu.saveBasePath(), p_->stateNo))) {
-		p_->cpu.setOsdElement(newStateLoadedOsdElement(p_->stateNo));
-		return true;
-	}
-
-	return false;
-}
-
 bool GB::saveState(gambatte::uint_least32_t const *videoBuf, std::ptrdiff_t pitch,
-                   std::string const &filepath) {
+                   std::ostream &file) {
 	if (p_->cpu.loaded()) {
 		SaveState state;
 		p_->cpu.setStatePtrs(state);
 		p_->cpu.saveState(state);
-		return StateSaver::saveState(state, videoBuf, pitch, filepath);
+		return StateSaver::saveState(state, videoBuf, pitch, file);
 	}
 
 	return false;
 }
-
-void GB::selectState(int n) {
-	n -= (n / 10) * 10;
-	p_->stateNo = n < 0 ? n + 10 : n;
-
-	if (p_->cpu.loaded()) {
-		std::string const &path = statePath(p_->cpu.saveBasePath(), p_->stateNo);
-		p_->cpu.setOsdElement(newSaveStateOsdElement(path, p_->stateNo));
-	}
-}
-
-int GB::currentState() const { return p_->stateNo; }
 
 std::string const GB::romTitle() const {
 	if (p_->cpu.loaded()) {

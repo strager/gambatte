@@ -41,10 +41,6 @@ public:
 		mem_.setInputGetter(getInput);
 	}
 
-	std::string const saveBasePath() const {
-		return mem_.saveBasePath();
-	}
-
 	void setOsdElement(transfer_ptr<OsdElement> osdElement) {
 		mem_.setOsdElement(osdElement);
 	}

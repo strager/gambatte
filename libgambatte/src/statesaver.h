@@ -21,6 +21,7 @@
 
 #include "gbint.h"
 #include <cstddef>
+#include <iosfwd>
 #include <string>
 
 namespace gambatte {
@@ -36,8 +37,8 @@ public:
 
 	static bool saveState(SaveState const &state,
 			uint_least32_t const *videoBuf, std::ptrdiff_t pitch,
-			std::string const &filename);
-	static bool loadState(SaveState &state, std::string const &filename);
+			std::ostream &file);
+	static bool loadState(SaveState &state, std::istream &file);
 
 private:
 	StateSaver();

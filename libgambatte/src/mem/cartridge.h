@@ -64,7 +64,6 @@ public:
 	unsigned char rtcRead() const { return *rtc_.activeData(); }
 	bool loadSavedata(std::istream * saveFile, std::istream * rtcFile);
 	bool saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const;
-	std::string const saveBasePath() const;
 	LoadRes loadROM(std::string const &romfile, bool forceDmg, bool multicartCompat);
 	char const * romTitle() const { return reinterpret_cast<char const *>(memptrs_.romdata() + 0x134); }
 	class PakInfo const pakInfo(bool multicartCompat) const;
@@ -80,8 +79,6 @@ private:
 	MemPtrs memptrs_;
 	Rtc rtc_;
 	scoped_ptr<Mbc> mbc_;
-	std::string defaultSaveBasePath_;
-	std::string saveDir_;
 	std::vector<AddrData> ggUndoList_;
 
 	void applyGameGenie(std::string const &code);

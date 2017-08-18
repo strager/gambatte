@@ -118,25 +118,7 @@ public:
 	bool saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const;
 
 	/**
-	  * Saves emulator state to the state slot selected with selectState().
-	  * The data will be stored in the directory given by setSaveDir().
-	  *
-	  * @param  videoBuf 160x144 RGB32 (native endian) video frame buffer or 0. Used for
-	  *                  saving a thumbnail.
-	  * @param  pitch distance in number of pixels (not bytes) from the start of one line
-	  *               to the next in videoBuf.
-	  * @return success
-	  */
-	bool saveState(gambatte::uint_least32_t const *videoBuf, std::ptrdiff_t pitch);
-
-	/**
-	  * Loads emulator state from the state slot selected with selectState().
-	  * @return success
-	  */
-	bool loadState();
-
-	/**
-	  * Saves emulator state to the file given by 'filepath'.
+	  * Saves emulator state to the file given by 'file'.
 	  *
 	  * @param  videoBuf 160x144 RGB32 (native endian) video frame buffer or 0. Used for
 	  *                  saving a thumbnail.
@@ -145,25 +127,13 @@ public:
 	  * @return success
 	  */
 	bool saveState(gambatte::uint_least32_t const *videoBuf, std::ptrdiff_t pitch,
-	               std::string const &filepath);
+	               std::ostream &file);
 
 	/**
-	  * Loads emulator state from the file given by 'filepath'.
+	  * Loads emulator state from the file given by 'file'.
 	  * @return success
 	  */
-	bool loadState(std::string const &filepath);
-
-	/**
-	  * Selects which state slot to save state to or load state from.
-	  * There are 10 such slots, numbered from 0 to 9 (periodically extended for all n).
-	  */
-	void selectState(int n);
-
-	/**
-	  * Current state slot selected with selectState().
-	  * Returns a value between 0 and 9 inclusive.
-	  */
-	int currentState() const;
+	bool loadState(std::istream &file);
 
 	/** ROM header title of currently loaded ROM image. */
 	std::string const romTitle() const;

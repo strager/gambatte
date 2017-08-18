@@ -477,30 +477,6 @@ void Cartridge::loadState(SaveState const &state) {
 	mbc_->loadState(state.mem);
 }
 
-static std::string const stripExtension(std::string const &str) {
-	std::string::size_type const lastDot = str.find_last_of('.');
-	std::string::size_type const lastSlash = str.find_last_of('/');
-
-	if (lastDot != std::string::npos && (lastSlash == std::string::npos || lastSlash < lastDot))
-		return str.substr(0, lastDot);
-
-	return str;
-}
-
-static std::string const stripDir(std::string const &str) {
-	std::string::size_type const lastSlash = str.find_last_of('/');
-	if (lastSlash != std::string::npos)
-		return str.substr(lastSlash + 1);
-
-	return str;
-}
-
-std::string const Cartridge::saveBasePath() const {
-	return saveDir_.empty()
-	     ? defaultSaveBasePath_
-	     : saveDir_ + stripDir(defaultSaveBasePath_);
-}
-
 static void enforce8bit(unsigned char *data, std::size_t size) {
 	if (static_cast<unsigned char>(0x100))
 		while (size--)
@@ -603,7 +579,6 @@ LoadRes Cartridge::loadROM(std::string const &romfile,
 	std::size_t const filesize = rom->size();
 	rombanks = std::max(pow2ceil(filesize / 0x4000), 2u);
 
-	defaultSaveBasePath_.clear();
 	ggUndoList_.clear();
 	mbc_.reset();
 	memptrs_.reset(rombanks, rambanks, cgb ? 8 : 2);
@@ -618,8 +593,6 @@ LoadRes Cartridge::loadROM(std::string const &romfile,
 
 	if (rom->fail())
 		return LOADRES_IO_ERROR;
-
-	defaultSaveBasePath_ = stripExtension(romfile);
 
 	switch (type) {
 	case type_plain: mbc_.reset(new Mbc0(memptrs_)); break;
