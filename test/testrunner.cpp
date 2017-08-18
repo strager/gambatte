@@ -283,15 +283,16 @@ static void runTestRom(
 		std::fprintf(stderr, "Failed to load ROM image file %s\n", file.c_str());
 		std::abort();
 	}
+	gb.setVideoBuffer(framebuf, gb_width);
 
 	std::putchar(gb.isCgb() ? 'c' : 'd');
 
 	long samplesLeft = samples_per_frame * 15;
-
 	while (samplesLeft >= 0) {
-		std::size_t samples = samples_per_frame;
-		gb.runFor(framebuf, gb_width, audiobuf, samples);
-		samplesLeft -= samples;
+		typedef gambatte::StopInfo StopInfo;
+		StopInfo stopInfo = gb.runFor(audiobuf, samples_per_frame);
+		assert(stopInfo.stopReason == StopInfo::REQUESTED_SAMPLES_PRODUCED || stopInfo.stopReason == StopInfo::VIDEO_FRAME_PRODUCED);
+		samplesLeft -= stopInfo.samplesProduced;
 	}
 }
 

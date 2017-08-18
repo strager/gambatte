@@ -40,21 +40,29 @@ GB::~GB() {
 	delete p_;
 }
 
-std::ptrdiff_t GB::runFor(gambatte::uint_least32_t *const videoBuf, std::ptrdiff_t const pitch,
-                          gambatte::uint_least32_t *const soundBuf, std::size_t &samples) {
+void GB::setVideoBuffer(gambatte::uint_least32_t *videoBuf, std::ptrdiff_t pitch) {
+	p_->cpu.setVideoBuffer(videoBuf, pitch);
+}
+
+StopInfo GB::runFor(gambatte::uint_least32_t *const soundBuf, std::size_t samples) {
 	if (!p_->cpu.loaded()) {
-		samples = 0;
-		return -1;
+		StopInfo stopInfo;
+		stopInfo.stopReason = StopInfo::ERROR_NOT_LOADED;
+		return stopInfo;
 	}
 
-	p_->cpu.setVideoBuffer(videoBuf, pitch);
 	p_->cpu.setSoundBuffer(soundBuf);
 
 	long const cyclesSinceBlit = p_->cpu.runFor(samples * 2);
-	samples = p_->cpu.fillSoundBuffer();
-	return cyclesSinceBlit >= 0
-	     ? static_cast<std::ptrdiff_t>(samples) - (cyclesSinceBlit >> 1)
-	     : cyclesSinceBlit;
+	StopInfo stopInfo;
+	stopInfo.samplesProduced = p_->cpu.fillSoundBuffer();
+	if (cyclesSinceBlit >= 0) {
+		stopInfo.stopReason = StopInfo::VIDEO_FRAME_PRODUCED;
+		stopInfo.videoFrameSampleOffset = samples - (cyclesSinceBlit >> 1);
+	} else {
+		stopInfo.stopReason = StopInfo::REQUESTED_SAMPLES_PRODUCED;
+	}
+	return stopInfo;
 }
 
 void GB::reset() {

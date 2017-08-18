@@ -21,6 +21,7 @@
 
 #include "gbint.h"
 #include "loadres.h"
+#include "stopinfo.h"
 #include <cstddef>
 #include <iosfwd>
 #include <string>
@@ -56,6 +57,13 @@ public:
 	LoadRes load(std::string const &romfile, unsigned flags = 0);
 
 	/**
+	  * @param videoBuf 160x144 RGB32 (native endian) video frame buffer or 0
+	  * @param pitch distance in number of pixels (not bytes) from the start of one line
+	  *              to the next in videoBuf.
+	  */
+	void setVideoBuffer(gambatte::uint_least32_t *videoBuf, std::ptrdiff_t pitch);
+
+	/**
 	  * Emulates until at least 'samples' audio samples are produced in the
 	  * supplied audio buffer, or until a video frame has been drawn.
 	  *
@@ -71,20 +79,14 @@ public:
 	  *
 	  * Returns early when a new video frame has finished drawing in the video buffer,
 	  * such that the caller may update the video output before the frame is overwritten.
-	  * The return value indicates whether a new video frame has been drawn, and the
-	  * exact time (in number of samples) at which it was completed.
+	  * In that case, StopInfo::stopReason indicates whether a new video
+	  * frame has been drawn, and StopInfo::videoFrameSampleOffset indicates
+	  * the exact time (in number of samples) at which it was completed.
 	  *
-	  * @param videoBuf 160x144 RGB32 (native endian) video frame buffer or 0
-	  * @param pitch distance in number of pixels (not bytes) from the start of one line
-	  *              to the next in videoBuf.
 	  * @param audioBuf buffer with space >= samples + 2064
-	  * @param samples  in: number of stereo samples to produce,
-	  *                out: actual number of samples produced
-	  * @return sample offset in audioBuf at which the video frame was completed, or -1
-	  *         if no new video frame was completed.
+	  * @param samples number of stereo samples to produce
 	  */
-	std::ptrdiff_t runFor(gambatte::uint_least32_t *videoBuf, std::ptrdiff_t pitch,
-	                      gambatte::uint_least32_t *audioBuf, std::size_t &samples);
+	StopInfo runFor(gambatte::uint_least32_t *audioBuf, std::size_t samples);
 
 	/**
 	  * Reset to initial state.

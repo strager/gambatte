@@ -1,4 +1,5 @@
 #include "gambatte.h"
+#include <cassert>
 #include <cstddef>
 #include <cstdio>
 #include <sstream>
@@ -10,12 +11,17 @@ enum { SCREEN_WIDTH = 160, SCREEN_HEIGHT = 144 };
 
 void runUntilNextFrame(gambatte::GB &gb) {
 	for (;;) {
-		gambatte::uint_least32_t videoBuf[SCREEN_WIDTH * SCREEN_HEIGHT];
 		gambatte::uint_least32_t soundBuf[SAMPLES_PER_FRAME + EXTRA_SAMPLES];
 		std::size_t samples = sizeof(soundBuf) / sizeof(*soundBuf);
-		std::ptrdiff_t result = gb.runFor(videoBuf, SCREEN_WIDTH, soundBuf, samples);
-		if (result >= 0) {
+		gambatte::StopInfo stopInfo = gb.runFor(soundBuf, samples);
+		switch (stopInfo.stopReason) {
+		case gambatte::StopInfo::REQUESTED_SAMPLES_PRODUCED:
 			break;
+		case gambatte::StopInfo::VIDEO_FRAME_PRODUCED:
+			return;
+		default:
+			assert(false);
+			return;
 		}
 	}
 }
