@@ -20,6 +20,8 @@
 #include "savestate.h"
 #include "sound.h"
 #include "video.h"
+#include <algorithm>
+#include <cstdlib>
 #include <cstring>
 
 namespace gambatte {
@@ -582,6 +584,47 @@ unsigned Memory::nontrivial_read(unsigned const p, unsigned long const cc) {
 	}
 
 	return ioamhram_[p - 0xFE00];
+}
+
+void Memory::externalRead(uint_least16_t p, unsigned char * data, std::size_t size, unsigned long const cc) const {
+	while (size > 0) {
+		unsigned char tempBuffer[1];
+		unsigned char const * chunkBegin;
+		uint_least16_t chunkSize;
+		if (p < 0x8000) {
+			chunkBegin = &cart_.romdata(p >> 14)[p];
+			chunkSize = 0x4000 - (p & 0x3FFF);
+		} else if (p < 0xA000) {
+			chunkBegin = &cart_.vrambankptr()[p];
+			chunkSize = 0xA000 - p;
+		} else if (p < 0xC000) {
+			if (cart_.rsrambankptr()) {
+				chunkBegin = &cart_.rsrambankptr()[p];
+				chunkSize = 0xC000 - p;
+			} else {
+				tempBuffer[0] = cart_.rtcRead();
+				chunkBegin = tempBuffer;
+				chunkSize = 1;
+			}
+		} else if (p < 0xFE00) {
+			chunkBegin = &cart_.wramdata(p >> 12 & 1)[p & 0xFFF];
+			chunkSize = 1; // TODO(strager): Copy in larger chunks.
+		} else if (p < 0xFF00)
+			// TODO(strager): Support OAM.
+			std::abort();
+		else if (p < 0xFF80)
+			// TODO(strager): Support I/O.
+			std::abort();
+		else {
+			chunkBegin = &ioamhram_[p - 0xFE00];
+			chunkSize = 0xFFFF - p + 1;
+		}
+		chunkSize = size <= 0xFFFF ? std::min(chunkSize, static_cast<uint_least16_t>(size)) : chunkSize;
+		assert(chunkSize > 0);
+		std::copy(chunkBegin, chunkBegin + chunkSize, data);
+		data += chunkSize;
+		size -= chunkSize;
+	}
 }
 
 void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long const cc) {

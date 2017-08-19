@@ -68,6 +68,8 @@ public:
 	bool removeROMBreakpoint(uint_least32_t fileOffset);
 	void clearROMBreakpoints();
 
+	void readMemory(uint_least16_t address, unsigned char * data, std::size_t size) const;
+
 private:
 	Memory mem_;
 	unsigned long cycleCounter_;

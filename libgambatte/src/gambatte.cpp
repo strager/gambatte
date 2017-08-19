@@ -173,4 +173,8 @@ void GB::clearROMBreakpoints() {
 	p_->cpu.clearROMBreakpoints();
 }
 
+void GB::readMemory(uint_least16_t address, unsigned char * data, std::size_t size) const {
+	p_->cpu.readMemory(address, data, size);
+}
+
 }

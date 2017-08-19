@@ -164,6 +164,8 @@ public:
 
 	void clearROMBreakpoints();
 
+	void readMemory(uint_least16_t address, unsigned char * data, std::size_t size) const;
+
 private:
 	struct Priv;
 	Priv *const p_;

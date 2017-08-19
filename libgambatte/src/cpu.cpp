@@ -122,6 +122,10 @@ void CPU::clearROMBreakpoints() {
 	breakpoints_.clearROMBreakpoints();
 }
 
+void CPU::readMemory(uint_least16_t address, unsigned char * data, std::size_t size) const {
+	return mem_.externalRead(address, data, size, cycleCounter_);
+}
+
 // The main reasons for the use of macros is to more conveniently be able to tweak
 // which variables are local and which are not, combined with the fact that at the
 // time they were written GCC had a tendency to not be able to keep hot variables

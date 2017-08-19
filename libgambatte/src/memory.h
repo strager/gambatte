@@ -73,6 +73,8 @@ public:
 		return cart_.rmem(p >> 12) ? cart_.rmem(p >> 12)[p] : nontrivial_read(p, cc);
 	}
 
+	void externalRead(uint_least16_t p, unsigned char * data, std::size_t size, unsigned long const cc) const;
+
 	void write(unsigned p, unsigned data, unsigned long cc) {
 		if (cart_.wmem(p >> 12)) {
 			cart_.wmem(p >> 12)[p] = data;
