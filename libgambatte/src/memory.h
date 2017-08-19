@@ -47,10 +47,6 @@ public:
 	bool loadSavedata(std::istream * saveFile, std::istream * rtcFile) { return cart_.loadSavedata(saveFile, rtcFile); }
 	bool saveSavedata(std::ostream * saveFile, std::ostream * rtcFile) const { return cart_.saveSavedata(saveFile, rtcFile); }
 
-	void setOsdElement(transfer_ptr<OsdElement> osdElement) {
-		lcd_.setOsdElement(osdElement);
-	}
-
 	unsigned long stop(unsigned long cycleCounter);
 	bool isCgb() const { return lcd_.isCgb(); }
 	bool ime() const { return intreq_.ime(); }

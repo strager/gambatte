@@ -20,7 +20,6 @@
 #include "cpu.h"
 #include "initstate.h"
 #include "savestate.h"
-#include "state_osd_elements.h"
 #include "statesaver.h"
 #include <cstring>
 #include <sstream>
@@ -86,8 +85,6 @@ LoadRes GB::load(std::string const &romfile, unsigned const flags) {
 		p_->loadflags = flags;
 		setInitState(state, p_->cpu.isCgb(), flags & GBA_CGB);
 		p_->cpu.loadState(state);
-
-		p_->cpu.setOsdElement(transfer_ptr<OsdElement>());
 	}
 
 	return loadres;

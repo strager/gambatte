@@ -27,7 +27,6 @@ set(
 	src/sound/duty_unit.cpp
 	src/sound/envelope_unit.cpp
 	src/sound/length_counter.cpp
-	src/state_osd_elements.cpp
 	src/statesaver.cpp
 	src/tima.cpp
 	src/video.cpp

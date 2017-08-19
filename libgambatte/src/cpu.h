@@ -43,10 +43,6 @@ public:
 		mem_.setInput(input);
 	}
 
-	void setOsdElement(transfer_ptr<OsdElement> osdElement) {
-		mem_.setOsdElement(osdElement);
-	}
-
 	LoadRes load(std::string const &romfile, bool forceDmg, bool multicartCompat) {
 		LoadRes res = mem_.loadROM(romfile, forceDmg, multicartCompat);
 		breakpoints_.reloadROMBreakpoints(mem_.cart());
