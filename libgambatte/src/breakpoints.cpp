@@ -27,7 +27,7 @@ Breakpoints::Breakpoints() {
 	clearROMBreakpoints();
 }
 
-bool Breakpoints::addROMBreakpoint(Cartridge const &cart, std::uint_least32_t fileOffset) {
+bool Breakpoints::addROMBreakpoint(Cartridge const &cart, uint_least32_t fileOffset) {
 	int count = romBreakpointCount();
 	for (int i = 0; i < count; ++i) {
 		if (romBreakpointOffsets_[i] == fileOffset)
@@ -44,7 +44,7 @@ bool Breakpoints::addROMBreakpoint(Cartridge const &cart, std::uint_least32_t fi
 	return true;
 }
 
-bool Breakpoints::removeROMBreakpoint(std::uint_least32_t fileOffset) {
+bool Breakpoints::removeROMBreakpoint(uint_least32_t fileOffset) {
 	int count = romBreakpointCount();
 	for (int i = 0; i < count; ++i) {
 		if (romBreakpointOffsets_[i] == fileOffset) {

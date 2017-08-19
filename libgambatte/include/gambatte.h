@@ -158,9 +158,9 @@ public:
 	  */
 	void setGameShark(std::string const &codes);
 
-	bool addROMBreakpoint(std::uint_least32_t fileOffset);
+	bool addROMBreakpoint(uint_least32_t fileOffset);
 
-	bool removeROMBreakpoint(std::uint_least32_t fileOffset);
+	bool removeROMBreakpoint(uint_least32_t fileOffset);
 
 	void clearROMBreakpoints();
 

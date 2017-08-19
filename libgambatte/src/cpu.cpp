@@ -110,11 +110,11 @@ void CPU::loadState(SaveState const &state) {
 	skip_ = state.cpu.skip;
 }
 
-bool CPU::addROMBreakpoint(std::uint_least32_t fileOffset) {
+bool CPU::addROMBreakpoint(uint_least32_t fileOffset) {
 	return breakpoints_.addROMBreakpoint(mem_.cart(), fileOffset);
 }
 
-bool CPU::removeROMBreakpoint(std::uint_least32_t fileOffset) {
+bool CPU::removeROMBreakpoint(uint_least32_t fileOffset) {
 	return breakpoints_.removeROMBreakpoint(fileOffset);
 }
 

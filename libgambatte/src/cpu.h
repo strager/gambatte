@@ -20,6 +20,7 @@
 #define CPU_H
 
 #include "breakpoints.h"
+#include "gbint.h"
 #include "memory.h"
 #include "stopinfo.h"
 
@@ -63,8 +64,8 @@ public:
 	void setGameGenie(std::string const &codes) { mem_.setGameGenie(codes); }
 	void setGameShark(std::string const &codes) { mem_.setGameShark(codes); }
 
-	bool addROMBreakpoint(std::uint_least32_t fileOffset);
-	bool removeROMBreakpoint(std::uint_least32_t fileOffset);
+	bool addROMBreakpoint(uint_least32_t fileOffset);
+	bool removeROMBreakpoint(uint_least32_t fileOffset);
 	void clearROMBreakpoints();
 
 private:

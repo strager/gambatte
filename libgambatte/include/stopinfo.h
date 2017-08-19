@@ -58,7 +58,7 @@ struct StopInfo {
 		  *
 		  * Set iff stopReason == ROM_BREAKPOINT_HIT.
 		  */
-		std::uint_least32_t romBreakpointFileOffset;
+		uint_least32_t romBreakpointFileOffset;
 	};
 };
 
