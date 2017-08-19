@@ -26,6 +26,8 @@
 #include <ostream>
 #include <vector>
 
+#define SAVE_VERSION 0x01
+
 namespace {
 
 using namespace gambatte;
@@ -245,6 +247,10 @@ SaverList::SaverList() {
 	{ static char const label[] = { s,r,a,m,o,n,   NUL }; ADD(mem.enableRam); }
 	{ static char const label[] = { r,a,m,b,m,o,d, NUL }; ADD(mem.rambankMode); }
 	{ static char const label[] = { h,d,m,a,       NUL }; ADD(mem.hdmaTransfer); }
+	{ static char const label[] = { b,i,o,s,       NUL }; ADD(mem.biosMode); }
+	{ static char const label[] = { a,g,b,m,o,d,e, NUL }; ADD(mem.agbMode); }
+	{ static char const label[] = { c,g,b,s,w,     NUL }; ADD(mem.cgbSwitching); }
+	{ static char const label[] = { b,i,o,s,c,g,b, NUL }; ADD(mem.gbIsCgb); }
 	{ static char const label[] = { b,g,p,         NUL }; ADDPTR(ppu.bgpData); }
 	{ static char const label[] = { o,b,j,p,       NUL }; ADDPTR(ppu.objpData); }
 	{ static char const label[] = { s,p,o,s,b,u,f, NUL }; ADDPTR(ppu.oamReaderBuf); }
@@ -275,6 +281,7 @@ SaverList::SaverList() {
 	{ static char const label[] = { w,s,c,x,       NUL }; ADD(ppu.wscx); }
 	{ static char const label[] = { w,e,m,a,s,t,r, NUL }; ADD(ppu.weMaster); }
 	{ static char const label[] = { l,c,d,s,i,r,q, NUL }; ADD(ppu.pendingLcdstatIrq); }
+	{ static char const label[] = { i,s,c,g,b,     NUL }; ADD(ppu.isCgb); }
 	{ static char const label[] = { s,p,u,c,n,t,r, NUL }; ADD(spu.cycleCounter); }
 	{ static char const label[] = { s,w,p,c,n,t,r, NUL }; ADD(spu.ch1.sweep.counter); }
 	{ static char const label[] = { s,w,p,s,h,d,w, NUL }; ADD(spu.ch1.sweep.shadow); }
@@ -399,7 +406,9 @@ namespace gambatte {
 bool StateSaver::saveState(SaveState const &state,
 		uint_least32_t const *const videoBuf,
 		std::ptrdiff_t const pitch, std::ostream &file) {
-	{ static char const ver[] = { 0, 1 }; file.write(ver, sizeof ver); }
+	file.put(0xFF); // make sure original gambatte doesn't load our savestates
+	file.put(SAVE_VERSION);
+	file.put(state.mem.gbIsCgb ? 1 : 0);
 	writeSnapShot(file, videoBuf, pitch);
 
 	for (SaverList::const_iterator it = list.begin(); it != list.end(); ++it) {
@@ -411,7 +420,13 @@ bool StateSaver::saveState(SaveState const &state,
 }
 
 bool StateSaver::loadState(SaveState &state, std::istream &file) {
-	if (!file || file.get() != 0)
+	if (!file)
+		return false;
+	char c = file.get();
+	if (c != 0 && static_cast<unsigned char>(c) != 0xFF)
+		return false;
+
+	if(file.get() != SAVE_VERSION)
 		return false;
 
 	file.ignore();
