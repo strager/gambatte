@@ -516,6 +516,8 @@ StopInfo CPU::runFor(unsigned long const cycles) {
 				cycleCounter += cycles + (-cycles & 3);
 			}
 		} else while (cycleCounter < mem_.nextEventTime()) {
+			// FIXME(strager): If we hit a breakpoint last
+			// execution, skip over that breakpoint here.
 			if (breakpoints_.hasROMBreakpoints()) {
 				unsigned char const * pcROMByte = mem_.cart().rmem(pc >> 12);
 				if (pcROMByte) {
