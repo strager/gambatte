@@ -103,12 +103,6 @@ public:
 	/** Sets what buttons are pressed. */
 	void setInput(unsigned char input);
 
-	/**
-	  * Sets the directory used for storing save data. The default is the same directory as
-	  * the ROM Image file.
-	  */
-	void setSaveDir(std::string const &sdir);
-
 	/** Returns true if the currently loaded ROM image is treated as having CGB support. */
 	bool isCgb() const;
 
