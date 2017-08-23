@@ -49,10 +49,10 @@ bool Breakpoints::removeROMBreakpoint(uint_least32_t fileOffset) {
 	for (int i = 0; i < count; ++i) {
 		if (romBreakpointOffsets_[i] == fileOffset) {
 			if (i != count - 1) {
-				using std::swap;
-				swap(romBreakpointBytes_[i], romBreakpointBytes_[count - 1]);
-				swap(romBreakpointOffsets_[i], romBreakpointOffsets_[count - 1]);
+				romBreakpointBytes_[i] = romBreakpointBytes_[count - 1];
+				romBreakpointOffsets_[i] = romBreakpointOffsets_[count - 1];
 			}
+			romBreakpointBytes_[count - 1] = NULL;
 			return true;
 		}
 	}
