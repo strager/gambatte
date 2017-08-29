@@ -622,6 +622,7 @@ void Memory::externalRead(uint_least16_t p, unsigned char * data, std::size_t si
 		chunkSize = size <= 0xFFFF ? std::min(chunkSize, static_cast<uint_least16_t>(size)) : chunkSize;
 		assert(chunkSize > 0);
 		std::copy(chunkBegin, chunkBegin + chunkSize, data);
+		p += chunkSize;
 		data += chunkSize;
 		size -= chunkSize;
 	}
