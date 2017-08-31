@@ -1167,17 +1167,25 @@ void gambatte::setInitState(SaveState &state, bool const cgb, bool const gbaCgbM
 		0x83, 0x40, 0x0B, 0x77
 	};
 
-	state.cpu.cycleCounter = cgb ? 0x102A0 : 0x102A0 + 0x8D2C;
+	//state.cpu.cycleCounter = cgb ? 0x102A0 : 0x102A0 + 0x8D2C;
+	state.cpu.cycleCounter = 0x639734 * 2;
 	state.cpu.pc = 0x100;
 	state.cpu.sp = 0xFFFE;
-	state.cpu.a = cgb * 0x10 | 0x01;
-	state.cpu.b = cgb & gbaCgbMode;
-	state.cpu.c = 0x13;
+	//state.cpu.a = cgb * 0x10 | 0x01;
+	//state.cpu.b = cgb & gbaCgbMode;
+	//state.cpu.c = 0x13;
+	state.cpu.a = 0x11;
+	state.cpu.b = 0x14;
+	state.cpu.c = 0x00;
 	state.cpu.d = 0x00;
-	state.cpu.e = 0xD8;
-	state.cpu.f = 0xB0;
-	state.cpu.h = 0x01;
-	state.cpu.l = 0x4D;
+	//state.cpu.e = 0xD8;
+	//state.cpu.f = 0xB0;
+	//state.cpu.h = 0x01;
+	//state.cpu.l = 0x4D;
+	state.cpu.e = 0x08;
+	state.cpu.f = 0x80;
+	state.cpu.h = 0x00;
+	state.cpu.l = 0x7C;
 	state.cpu.skip = false;
 
 	std::memset(state.mem.sram.ptr, 0xFF, state.mem.sram.size());
@@ -1192,7 +1200,8 @@ void gambatte::setInitState(SaveState &state, bool const cgb, bool const gbaCgbM
 		setInitialDmgIoamhram(state.mem.ioamhram.ptr);
 	}
 
-	state.mem.ioamhram.ptr[0x104] = 0x1C;
+	//state.mem.ioamhram.ptr[0x104] = 0x1C;
+	state.mem.ioamhram.ptr[0x104] = 0x00;
 	state.mem.ioamhram.ptr[0x140] = 0x91;
 	state.mem.ioamhram.ptr[0x144] = 0x00;
 
@@ -1235,7 +1244,9 @@ void gambatte::setInitState(SaveState &state, bool const cgb, bool const gbaCgbM
 	std::memset(state.ppu.spAttribList, 0, sizeof state.ppu.spAttribList);
 	std::memset(state.ppu.spByte0List, 0, sizeof state.ppu.spByte0List);
 	std::memset(state.ppu.spByte1List, 0, sizeof state.ppu.spByte1List);
-	state.ppu.videoCycles = cgb ? 144*456ul + 164 : 153*456ul + 396;
+	//state.ppu.videoCycles = cgb ? 144*456ul + 164 : 153*456ul + 396;
+	//state.ppu.videoCycles = 67472;
+	state.ppu.videoCycles = 0x94 * 456ul - 16;
 	state.ppu.enableDisplayM0Time = state.cpu.cycleCounter;
 	state.ppu.winYPos = 0xFF;
 	state.ppu.xpos = 0;
